@@ -1,0 +1,422 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+if (isset($_GET['event_id'])) {
+    $eventId = (int)$_GET['event_id'];
+
+    $conn = new mysqli("localhost", "root", "", "volunteer_coordination_system");
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $sql = "SELECT events.*, users.name AS organizer_name, users.profile_image, users.email, users.dob, users.self_introduction 
+            FROM events
+            JOIN users ON events.user_id = users.id 
+            WHERE events.id = ?";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $eventId);
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $event = $result->fetch_assoc();
+
+        $profile = [
+            'profile_image' => $event['profile_image'],
+            'name' => $event['organizer_name'],
+            'email' => $event['email'],
+            'dob' => $event['dob'],
+            'self_introduction' => $event['self_introduction']
+        ];
+    } else {
+        echo "Event not found.";
+        $stmt->close();
+        $conn->close();
+        exit();
+    }
+
+    $stmt->close();
+    $conn->close();
+} else {
+    echo "Event ID is not specified.";
+    exit();
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo ($event['title']); ?></title>
+    <link rel="stylesheet" href="css/find_event.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <?php include 'header.php'; ?>
+    <div id="notificationContainer"></div>
+
+    <section>
+        <div class="event-detail">
+            <div class="event-poster">
+                <img src="<?php echo ($event['event_poster']); ?>" alt="Event Poster">
+            </div>
+            </br>
+            <div class="event-content">
+                <div class="icon" style="display: flex;">
+                    <h4 class="event-title"><?php echo ($event['title']); ?></h4>
+                </div>
+                <p class="event-organizer">Organizer: <?php echo ($event['organizer_name']); ?></p>
+                <p class="event-dates">Date: <?php echo ($event['start_date']); ?>
+                    <?php if (!empty($event['end_date'])): ?>
+                        - <?php echo ($event['end_date']); ?> </p>
+            <?php endif; ?>
+
+            <p class="event-venue">Venue: <?php echo ($event['venue']); ?></p>
+            <p class="event-description"><?php echo ($event['description']); ?></p>
+            </br>
+            <p class="event-meta">Location: <?php echo ($event['city']); ?></p>
+            <p class="event-meta">Date Posted: <?php echo ($event['date_created']); ?></p>
+
+            <button id="applyEventButton" class="btn btn-primary mt-3" type="button">Apply Event</button>
+
+            </div>
+            <?php if ($event['donation'] === 'Yes'): ?>
+                <div class="event-donation">
+                    <p id="raised-amount-<?php echo $event['id']; ?>">Raised: RM <?php echo number_format($event['raised'], 2); ?></p>
+                    <div class="progress-bar-container">
+                        <div id="progress-bar-<?php echo $event['id']; ?>" class="progress-bar" style="width: <?php echo min(100, ($event['raised'] / $event['goal']) * 100); ?>%;"></div>
+                    </div>
+                    <p id="goal-amount-<?php echo $event['id']; ?>" style="margin-top: 1rem;">Goal: RM <?php echo number_format($event['goal'], 2); ?></p>
+                    <p id="goal-message-<?php echo $event['id']; ?>" class="text-success mt-3"></p>
+
+                    <?php if ($event['raised'] >= $event['goal']): ?>
+                        <p class="text-success mt-3">Goal reached! Thank you for your support.</p>
+                    <?php else: ?>
+                        <button id="donate-button-<?php echo $event['id']; ?>" class="btn btn-danger mt-3" type="button" data-bs-toggle="modal" data-bs-target="#donateModal-<?php echo $event['id']; ?>">Donate</button>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <!-- Modal -->
+    <div class="modal fade" id="donateModal-<?php echo $event['id']; ?>" tabindex="-1" aria-labelledby="donateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="donateModalLabel">Donate to "<?php echo htmlspecialchars($event['title']); ?>"</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="donationForm-<?php echo $event['id']; ?>" method="POST" action="server/process_donation.php">
+                        <!-- Preset Buttons for Quick Amount Selection -->
+                        <div class="mb-3">
+                            <label for="presetAmounts" class="form-label">Select Donation Amount:</label>
+                            <div class="preset-amounts">
+                                <button type="button" class="btn btn-outline-primary preset-amount" data-amount="50">RM 50</button>
+                                <button type="button" class="btn btn-outline-primary preset-amount" data-amount="200">RM 200</button>
+                                <button type="button" class="btn btn-outline-primary preset-amount" data-amount="400">RM 400</button>
+                                <button type="button" class="btn btn-outline-primary preset-amount" data-amount="600">RM 600</button>
+                                <button type="button" class="btn btn-outline-primary preset-amount" data-amount="800">RM 800</button>
+                                <button type="button" class="btn btn-outline-primary preset-amount" data-amount="1000">RM 1000</button>
+                            </div>
+                        </div>
+
+                        <!-- Input field for manually entering donation amount -->
+                        <div class="mb-3">
+                            <label for="donationAmount" class="form-label">Or Enter Donation Amount (RM)</label>
+                            <input type="number" class="form-control" id="donationAmount-<?php echo $event['id']; ?>" name="donation_amount" required min="1">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="paymentMethod" class="form-label">Select Payment Method:</label>
+                            <select class="form-select" id="paymentMethod-<?php echo $event['id']; ?>" name="payment_method" required>
+                                <option value="">Choose payment method</option>
+                                <option value="TouchNGo">TouchNGo</option>
+                                <option value="Visa">Credit or Debit</option>
+                                <!-- <option value="OnlineBanking">Online Banking</option> -->
+                            </select>
+                        </div>
+
+                        <!-- Hidden fields for event details -->
+                        <input type="hidden" name="event_id" value="<?php echo $event['id']; ?>">
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-danger">Proceed to Payment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section>
+        <div class="event-detail">
+            <div class="container py-4">
+                <h3 class="text-center">Event Details</h2>
+                    <div class="event-content">
+                        <div class="skills-container">
+                            <div class="skills-title">Skills:</div>
+                            <div id="skillsList" class="skills-list">
+                            </div>
+                            </br>
+                            <?php if (!empty($event['comments'])): ?>
+                                <div class="skills-title">
+                                    <p class="event-skills">Additional Requirements:</p>
+                                </div>
+                                <?php echo htmlspecialchars($event['comments']); ?>
+                            <?php else: ?>
+                                <div class="skills-title">
+                                    <p>Additional Requirements:</p>
+                                </div>
+                                None
+                            <?php endif; ?>
+                        </div>
+                        <div class="event-map">
+                        </div>
+                    </div>
+            </div>
+    </section>
+
+    <section>
+        <div class="user-detail">
+            <div class="container py-4">
+                <h3 class="text-center">About Organizer</h3>
+                <div class="event-content" style="display: flex; align-items: center;">
+                    <div class="user-image" style="flex: 0 0 200px; margin-right: 20px; border: 3px solid #ddd; border-radius: 8px; padding: 5px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);"> <!-- Increased size to 200px -->
+                        <img src="<?php echo htmlspecialchars($profile['profile_image']); ?>" alt="User Profile" style="width: 100%; height: auto; border-radius: 8px;"> <!-- Responsive image -->
+                    </div>
+                    <div class="user-info">
+                        <div class="icon" style="display: flex;">
+                            <h4 class="event-title" style="margin: 0;"><?php echo htmlspecialchars($profile['name']); ?></h4>
+                        </div>
+                        <?php
+                        $dob = new DateTime($profile['dob']);
+                        $now = new DateTime();
+                        $age = $now->diff($dob)->y;
+                        ?>
+                        <br>
+                        <p class="user-age">Age: <?php echo $age; ?></p>
+                        <p class="user-email">Email: <?php echo htmlspecialchars($profile['email']); ?></p>
+                        <br>
+                        <p class="user-intro"><?php echo nl2br(htmlspecialchars($profile['self_introduction'])); ?></p>
+                        <a href="view_profile.php?user_id=<?php echo $event['user_id']; ?>" class="btn btn-primary mt-3">View Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <?php include 'footer.php'; ?>
+    <script>
+        document.querySelectorAll('.donate-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const modalId = this.getAttribute('data-target');
+                const modal = document.querySelector(modalId);
+            });
+        });
+
+        document.querySelectorAll('.preset-amount').forEach(button => {
+            button.addEventListener('click', function() {
+                const selectedAmount = this.getAttribute('data-amount');
+                const donationInput = this.closest('.modal-body').querySelector('[id^="donationAmount"]');
+                donationInput.value = selectedAmount;
+            });
+        });
+
+        document.querySelectorAll('[id^="donationForm-"]').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const amount = formData.get('donation_amount');
+                const paymentMethod = formData.get('payment_method');
+                const eventId = formData.get('event_id');
+
+                // Redirect to the payment process page
+                window.location.href = `process_payment.php?amount=${amount}&method=${paymentMethod}&event_id=${eventId}`;
+            });
+        });
+
+        // Function to ensure scrolling is restored when modal is closed manually
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('hidden.bs.modal', function(event) {
+                document.body.style.overflow = 'auto';
+                document.documentElement.style.overflow = 'auto';
+                document.body.style.removeProperty('padding-right');
+            });
+        });
+
+
+        document.getElementById('applyEventButton').addEventListener('click', function() {
+            const userId = <?php echo json_encode($_SESSION['user_id']); ?>;
+            const eventId = <?php echo json_encode($eventId); ?>;
+            const organizerId = <?php echo json_encode($event['user_id']); ?>;
+            if (userId === organizerId) {
+                alert('You cannot apply for your own event.');
+                return;
+            }
+            if (confirm('Do you want to apply for this event?')) {
+                const requestData = {
+                    user_id: userId,
+                    event_id: eventId
+                };
+                fetch('server/apply_event.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestData) // Convert the data to JSON string
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json(); // Assuming the server returns JSON
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showNotification(data.message, "success");
+                        } else {
+                            showNotification(data.message, "error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error during fetch operation:', error);
+                        alert('An error occurred while applying for the event.');
+                    });
+            }
+        });
+
+        function displaySkills(skillsString) {
+            const skillsList = document.getElementById('skillsList');
+            const skills = skillsString ? skillsString.split(',').map(skill => skill.trim()) : [];
+
+            if (skills.length > 0) {
+                skills.forEach(skill => {
+                    const badge = document.createElement('span');
+                    badge.className = 'skill-badge';
+                    badge.textContent = skill;
+                    skillsList.appendChild(badge);
+                });
+            } else {
+                const noSkills = document.createElement('p');
+                noSkills.className = 'no-skills';
+                noSkills.textContent = "None required.";
+                skillsList.appendChild(noSkills);
+            }
+        }
+
+        // Call the function with the PHP-generated skills data
+        displaySkills('<?php echo addslashes($event['skills']); ?>');
+
+        // Function to show notification with a dynamic message
+        function showNotification(message, type, id = null) {
+            const notificationContainer = document.getElementById('notificationContainer');
+
+            // Create a new notification box element
+            const notificationBox = document.createElement('div');
+            notificationBox.classList.add('notification-box', 'show'); // Initially show
+
+            // Give each notification a unique ID, so we can remove it easily
+            const notificationId = id ? id : new Date().getTime();
+            notificationBox.setAttribute('id', 'notification-' + notificationId);
+
+            // Apply type-specific classes
+            if (type === 'success') {
+                notificationBox.style.backgroundColor = '#28a745'; // Green for success
+            } else if (type === 'error') {
+                notificationBox.style.backgroundColor = '#dc3545'; // Red for error
+            } else if (type === 'info') {
+                notificationBox.style.backgroundColor = '#17a2b8'; // Blue for info
+            }
+
+            notificationBox.innerText = message;
+
+            // Append the new notification at the top
+            notificationContainer.prepend(notificationBox);
+
+            // Fade in
+            setTimeout(() => {
+                notificationBox.classList.add('show'); // Ensure it fades in
+            }, 10); // Small timeout to trigger the transition
+
+            // Set it to auto-hide after a delay (e.g., 3 seconds)
+            setTimeout(() => {
+                hideNotification(notificationId); // Hide after delay
+            }, 3000); // Change delay as needed
+        }
+
+        // Function to hide a specific notification
+        function hideNotification(notificationId) {
+            const notificationBox = document.getElementById('notification-' + notificationId);
+            if (notificationBox) { // Check if the notification box exists
+                notificationBox.classList.remove('show');
+                notificationBox.classList.add('hide');
+                setTimeout(() => {
+                    if (notificationBox && notificationBox.parentNode) {
+                        notificationBox.parentNode.removeChild(notificationBox); // Safely remove the notification
+                    }
+                }, 500); // Adjust this duration based on the CSS transition time
+            }
+        }
+
+        function updateProgressBar(eventId) {
+            fetch(`server/fetch_donation_data.php?event_id=${eventId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const raised = data.total || 0; // Use the total from the response
+                        const goal = data.goal || 0; // Use the goal from the response
+
+                        // Update the displayed raised amount
+                        document.querySelector(`#raised-amount-${eventId}`).innerText = `Raised: RM ${raised.toFixed(2)}`;
+                        document.querySelector(`#goal-amount-${eventId}`).innerText = `Goal: RM ${goal.toFixed(2)}`;
+
+                        // Update the progress bar
+                        const progressBar = document.querySelector(`#progress-bar-${eventId}`);
+                        const progressPercentage = Math.min(100, (raised / goal) * 100);
+                        progressBar.style.width = `${progressPercentage}%`;
+
+                        // Check if the goal is reached
+                        if (raised >= goal) {
+                            document.querySelector(`#goal-message-${eventId}`).innerText = "Goal reached! Thank you for your support.";
+                            // Hide the donate button
+                            const donateButton = document.querySelector(`#donate-button-${eventId}`);
+                            if (donateButton) {
+                                donateButton.style.display = 'none'; // Hide button
+                            } else {
+                                console.error(`Button not found for event ID: ${eventId}`);
+                            }
+                        } else {
+                            document.querySelector(`#goal-message-${eventId}`).innerText = ""; // Clear message
+                            const donateButton = document.querySelector(`#donate-button-${eventId}`);
+                            if (donateButton) {
+                                donateButton.style.display = 'block'; // Show button
+                            } else {
+                                console.error(`Button not found for event ID: ${eventId}`);
+                            }
+                        }
+                    } else {
+                        console.error('Error fetching donation data:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+
+</html>
