@@ -6,3 +6,6 @@ Please follow the step below to run the system:
 
 3. admin login
    email:admin@gmail.com pass:admin123@
+
+4. user login
+   email:lawkaijian@gmail.com   pass:Kaijian1234#
