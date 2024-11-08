@@ -23,6 +23,32 @@ $event_id = $data['event_id'];
 $current_start_date = $data['start_date'];
 $current_end_date = $data['end_date'];
 
+
+// Check if the user has completed their profile
+$profile_check_sql = "SELECT self_introduction, profile_image FROM users WHERE id = ?";
+$profile_check_stmt = $conn->prepare($profile_check_sql);
+
+if ($profile_check_stmt) {
+    $profile_check_stmt->bind_param("i", $user_id);
+    $profile_check_stmt->execute();
+    $profile_check_stmt->bind_result($self_introduction, $profile_image);
+    $profile_check_stmt->fetch();
+
+    // Check if self_introduction or profile_image is empty
+    if (empty($self_introduction) || empty($profile_image)) {
+        echo json_encode(['success' => false, 'message' => 'Please complete your profile by adding a self-introduction and profile image before applying.']);
+        $profile_check_stmt->close();
+        $conn->close();
+        exit();
+    }
+
+    $profile_check_stmt->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'Failed to prepare profile check statement']);
+    $conn->close();
+    exit();
+}
+
 // Check if the user has already applied for this event
 $check_sql = "SELECT id FROM event_applications WHERE user_id = ? AND event_id = ?";
 $check_stmt = $conn->prepare($check_sql);

@@ -228,6 +228,14 @@ if (isset($_GET['user_id'])) {
                             <?php echo $profile['credit'] . "/100"; ?>
                         </p>
                     </div>
+                    <div class="form-group" style="display: inline-flex; align-items: center;">
+                        <label for="date-joined" style="margin-right: 5px;">Verified by admin:</label>
+                        <?php if ($profile['verified_by_admin'] == 1): ?>
+                            <i class="fas fa-check-circle" style="color: green;" data-bs-toggle="tooltip" title="Verified by admin (Profile legitimacy)"></i>
+                        <?php else: ?>
+                            <i class="fas fa-times-circle" style="color: grey;" data-bs-toggle="tooltip" title="Not verified by admin (Profile legitimacy)"></i>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <div class="user-detail">
