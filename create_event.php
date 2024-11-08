@@ -940,7 +940,7 @@ if (!isset($_SESSION['user_id'])) {
             const title = document.querySelector('#title').value;
             const description = document.querySelector('#description').value;
             const startDate = document.querySelector('#startDate').value;
-            const endDate = document.querySelector('#endDate').value;
+            const endDate = document.querySelector('#endDate').value || 'N/A';
             const start_time = document.querySelector('#start_time').value;
             const end_time = document.querySelector('#end_time').value;
             const venue = document.querySelector('#venue').value;

@@ -91,8 +91,8 @@ if (!$amount || !$paymentMethod || !$eventId) {
             <div class="payment-header">
                 <h2 class="mb-4">Process Payment</h2>
                 <p class="lead">Amount: <span class="text-primary">RM <?php echo htmlspecialchars($amount); ?></span></p>
-                <!-- <p>Payment Method: <span class="payment-method"><?php echo htmlspecialchars($paymentMethod); ?></span></p> -->
-                <p>Payment Method: <span class="payment-method">Credit/Debit Card</span></p>
+                <p>Payment Method: <span class="payment-method"><?php echo htmlspecialchars($paymentMethod); ?></span></p>
+                <!-- <p>Payment Method: <span class="payment-method">Credit/Debit Card</span></p> -->
 
             </div>
 
