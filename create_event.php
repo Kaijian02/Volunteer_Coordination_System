@@ -940,7 +940,7 @@ if (!isset($_SESSION['user_id'])) {
             const title = document.querySelector('#title').value;
             const description = document.querySelector('#description').value;
             const startDate = document.querySelector('#startDate').value;
-            const endDate = document.querySelector('#endDate').value || 'N/A';
+            const endDate = document.querySelector('#endDate').value;
             const start_time = document.querySelector('#start_time').value;
             const end_time = document.querySelector('#end_time').value;
             const venue = document.querySelector('#venue').value;
@@ -957,7 +957,7 @@ if (!isset($_SESSION['user_id'])) {
             // console.log('Title:', title); // Debugging
             // console.log('Description:', description); // Debugging
             // console.log('Start Date:', startDate); // Debugging
-            // console.log('End Date:', endDate); // Debugging
+            console.log('End Date:', endDate); // Debugging
             // console.log('Start Time:', start_time); // Debugging
             // console.log('End Time:', end_time); // Debugging
             // console.log('Venue:', venue); // Debugging
