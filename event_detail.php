@@ -272,7 +272,9 @@ if (isset($_GET['event_id'])) {
             if (confirm('Do you want to apply for this event?')) {
                 const requestData = {
                     user_id: userId,
-                    event_id: eventId
+                    event_id: eventId,
+                    start_date: '<?php echo $event['start_date']; ?>',
+                    end_date: '<?php echo $event['end_date']; ?>'
                 };
                 fetch('server/apply_event.php', {
                         method: 'POST',
