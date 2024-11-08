@@ -5,6 +5,44 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
+
+$conn = new mysqli("localhost", "root", "", "volunteer_coordination_system");
+
+// Check if the connection was successful
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Get the user ID from the session
+$user_id = $_SESSION['user_id'];
+
+// Check if the user has completed their profile
+$profile_check_sql = "SELECT self_introduction, profile_image FROM users WHERE id = ?";
+$profile_check_stmt = $conn->prepare($profile_check_sql);
+
+if ($profile_check_stmt) {
+    $profile_check_stmt->bind_param("i", $user_id);
+    $profile_check_stmt->execute();
+    $profile_check_stmt->bind_result($self_introduction, $profile_image);
+    $profile_check_stmt->fetch();
+
+    // Check if self_introduction or profile_image is empty
+    if (empty($self_introduction) || empty($profile_image)) {
+        echo "<script>
+        alert('Please complete your profile by adding a self-introduction and profile image before creating the event.');
+        window.location.href = 'profile.php';
+      </script>";
+        exit();
+    }
+
+    $profile_check_stmt->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'Failed to prepare profile check statement']);
+    $conn->close();
+    exit();
+}
+
+$conn->close();
 ?>
 
 <!DOCTYPE html>
