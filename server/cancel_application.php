@@ -79,13 +79,11 @@ if ($reason) {
 } else {
     // Direct cancellation for cases without a reason
     $reason = 'No reason needed';
-    $sql = "UPDATE event_applications 
-            SET status = 'Cancelled', reason = ?, cancelled_date = NOW()
-            WHERE id = ? AND user_id = ?";
+    $sql = "DELETE FROM event_applications WHERE id = ? AND user_id = ?";
     $stmt = $conn->prepare($sql);
 
     if ($stmt) {
-        $stmt->bind_param("sii", $reason, $application_id, $user_id);
+        $stmt->bind_param("ii", $application_id, $user_id);
         $stmt->execute();
 
         if ($stmt->affected_rows > 0) {
