@@ -141,7 +141,12 @@
                             })
                             .catch(error => {
                                 console.error('Error fetching users:', error);
-                                contentArea.innerHTML = '<p>Error loading user data.</p>';
+                                contentArea.innerHTML = `
+                                <h4>Manage Users</h4>
+                                <p class ="text-muted">Check user profiles to validate their information, especially their certificates.</p>
+                                <p>No new users to verify.</p>
+                            `;
+
                             });
                         break;
                     case 'manageVerifiedUsers':
@@ -152,7 +157,11 @@
                             })
                             .catch(error => {
                                 console.error('Error fetching verified users:', error);
-                                contentArea.innerHTML = '<p>Error loading verified user data.</p>';
+                                contentArea.innerHTML = `
+                                <h4>Verified Users</h4>
+                                <p class ="text-muted">View users whose certificates have been verified and validated.</p>
+                                <p>No verified users.</p>
+                            `;
                             });
                         break;
                     case 'manageEvents':
