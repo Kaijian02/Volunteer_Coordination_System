@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Check if the event has already ended
     $currentDate = date('Y-m-d');
-    if ($currentDate > $eventStartDate) {
+    if ($currentDate >= $eventStartDate) {
         echo json_encode([
             'success' => false,
             'message' => 'This action cannot be completed as the event has already started.'
