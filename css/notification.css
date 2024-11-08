@@ -1,0 +1,65 @@
+#notificationContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  width: 300px;
+  max-width: 100%;
+}
+
+/* Each notification box */
+.notification-box {
+  background-color: #333;
+  /* Default background */
+  color: #fff;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  opacity: 0;
+  /* Start invisible */
+  transform: translateY(20px);
+  /* Start slightly below */
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  /* Transition effects */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Show the notification */
+.notification-box.show {
+  opacity: 1;
+  /* Fully visible */
+  transform: translateY(0);
+  /* Original position */
+}
+
+/* Hide the notification */
+.notification-box.hide {
+  opacity: 0;
+  /* Fade out */
+  transform: translateY(20px);
+  /* Move slightly down */
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  /* Transition effects */
+}
+
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent background */
+  z-index: 10000;
+  /* Ensure it is above everything else */
+  display: none;
+}
+
+.overlay-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  color: #fff;
+}

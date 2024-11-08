@@ -1,0 +1,403 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+.event-link {
+  text-decoration: none;
+}
+
+.event-link:hover {
+  text-decoration: none;
+}
+
+.event-item {
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  background-color: #f9f9f9;
+}
+
+.event-detail,
+.user-detail,
+.skill-detail,
+.comment-detail {
+  display: flex;
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #f9f9f9;
+  min-height: 350px;
+}
+
+.event-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.event-content,
+.skill-content,
+.cert-content {
+  flex: 2;
+  /* Adjust as needed */
+  padding-right: 15px;
+}
+
+.event-poster,
+.user-image {
+  flex: 1;
+  /* Adjust as needed */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event-donation {
+  flex: 1;
+  margin: 20px 0;
+  min-width: 300px;
+}
+
+.event-map {
+  flex: 1;
+  padding-right: 15px;
+}
+
+.event-poster img,
+.user-image img {
+  max-width: 100%;
+  max-height: 370px;
+}
+
+.event-title,
+.user-name {
+  font-size: 24px;
+  font-weight: bold;
+  color: black;
+}
+
+.event-organizer,
+.event-skills,
+.event-donation {
+  font-size: 14px;
+  color: #666;
+}
+
+.event-dates,
+.event-venue,
+.event-description,
+.user-age,
+.user-email,
+.user-intro {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: black;
+}
+
+.event-description {
+  margin-top: 10px;
+}
+
+.event-meta {
+  grid-area: meta;
+  font-size: 12px;
+  color: #999;
+  display: flex;
+  justify-content: space-between;
+}
+
+.event-donation p {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.progress-bar-container {
+  width: 80%;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 10px;
+  height: 20px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4caf50 !important;
+  /* Green color */
+  width: 0;
+  /* Set dynamically via inline style */
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .event-item,
+  .event-detail,
+  .user-detail,
+  .skill-detail,
+  .comment-detail {
+    flex-direction: column;
+    /* Stack items vertically on smaller screens */
+    align-items: center;
+    /* Center align items */
+  }
+
+  .event-poster,
+  .user-image {
+    flex: none;
+    /* Reset flex properties */
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+    /* Make poster take full width */
+  }
+
+  .event-poster,
+  .user-image img {
+    max-width: 100%;
+    /* Ensure the image is responsive */
+    height: auto;
+  }
+
+  .event-title,
+  .user-name {
+    font-size: 18px;
+    /* Adjust font size for smaller screens */
+  }
+
+  .event-dates,
+  .event-venue,
+  .user-age,
+  .user-email,
+  .user-intro {
+    font-size: 13px;
+  }
+
+  .event-description,
+  .event-meta {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .event-title,
+  .user-name {
+    font-size: 16px;
+    /* Further adjust font size for very small screens */
+  }
+
+  .event-dates,
+  .event-venue,
+  .user-age,
+  .user-email,
+  .user-intro {
+    font-size: 12px;
+  }
+
+  .event-description,
+  .event-meta {
+    font-size: 12px;
+  }
+}
+
+/* Search bar container */
+#searchForm {
+  margin-bottom: 20px;
+}
+
+/* Styling for error messages */
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.form-check-label {
+  margin-left: 8px;
+}
+
+.text-danger {
+  color: red;
+}
+
+#searchForm {
+  /* Light gray background */
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* #searchInput,
+#locationInput {
+    max-width: 300px;
+   
+} */
+
+/* Container for search input and clear icon */
+.search-container {
+  position: relative;
+}
+
+.search-container input[type="text"] {
+  width: 100%;
+  padding-right: 30px;
+  height: 50px;
+  /* Space for the clear icon */
+}
+
+/* Clear icon styling inside the search input */
+.clear-icon {
+  position: absolute;
+  right: 10px;
+  /* Adjust as needed */
+  top: 45%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: none;
+  font-size: 20px;
+}
+
+/* Show the clear icon when input has text */
+.search-container input:focus + .clear-icon,
+.search-container input:not(:placeholder-shown) + .clear-icon {
+  display: block;
+}
+
+.no-arrow {
+  background-image: none;
+  /* Hide the arrow */
+}
+
+#skillSelect,
+#locationDropdown,
+#state,
+#city {
+  /* Adjust this value as needed */
+  background-position: right 2rem center;
+  height: 50px;
+  /* Adjust horizontal and vertical positions */
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+}
+
+.love-icon {
+  font-size: 24px;
+  color: gray;
+  transition: color 0.3s ease;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.love-icon:hover {
+  color: red;
+}
+
+.skills-container,
+.certs-container {
+  margin-top: 20px;
+}
+
+.skills-title,
+.certs-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.skill-badge {
+  background-color: #e2e8f0;
+  color: #4a5568;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 14px;
+  display: inline-block;
+}
+
+.no-skills {
+  color: #718096;
+  font-style: italic;
+}
+
+.go-back-link {
+  left: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  color: #007bff;
+  transition: color 0.3s ease;
+}
+
+.go-back-link:hover {
+  color: #0056b3;
+}
+
+.go-back-link i {
+  margin-right: 5px;
+}
+
+#notificationContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  width: 300px;
+  max-width: 100%;
+}
+
+/* Each notification box */
+.notification-box {
+  background-color: #333;
+  /* Default background */
+  color: #fff;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  opacity: 0;
+  /* Start invisible */
+  transform: translateY(20px);
+  /* Start slightly below */
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  /* Transition effects */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Show the notification */
+.notification-box.show {
+  opacity: 1;
+  /* Fully visible */
+  transform: translateY(0);
+  /* Original position */
+}
+
+/* Hide the notification */
+.notification-box.hide {
+  opacity: 0;
+  /* Fade out */
+  transform: translateY(20px);
+  /* Move slightly down */
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.form-select-sm {
+  font-size: 1rem; /* Adjust size as needed, e.g., 1.2rem for larger text */
+  padding: 0.5rem 0.75rem; /* Adjust padding if necessary for a balanced look */
+}
