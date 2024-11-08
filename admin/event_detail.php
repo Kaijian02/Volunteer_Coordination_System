@@ -17,9 +17,9 @@ if (isset($_GET['event_id'])) {
     }
 
     // Prepare the SQL statement to fetch event details along with organizer name
-    $sql = "SELECT events.*, users.name AS organizer_name 
+    $sql = "SELECT events.*, users.name AS organizer_name, users.profile_image, users.email, users.dob, users.self_introduction 
             FROM events
-            JOIN users ON events.user_id = user_id 
+            JOIN users ON events.user_id = users.id 
             WHERE events.id = ?";
 
     $stmt = $conn->prepare($sql);
@@ -30,6 +30,13 @@ if (isset($_GET['event_id'])) {
 
     if ($result->num_rows > 0) {
         $event = $result->fetch_assoc();
+        $profile = [
+            'profile_image' => $event['profile_image'],
+            'name' => $event['organizer_name'],
+            'email' => $event['email'],
+            'dob' => $event['dob'],
+            'self_introduction' => $event['self_introduction']
+        ];
     } else {
         echo "Event not found.";
         $stmt->close();
@@ -190,6 +197,35 @@ if (isset($_GET['event_id'])) {
                     </div>
                 </div>
             </div>
+    </section>
+
+    <section>
+        <div class="user-detail">
+            <div class="container py-4">
+                <h3 class="text-center">About Organizer</h3>
+                <div class="event-content" style="display: flex; align-items: center;">
+                    <div class="user-image" style="flex: 0 0 200px; margin-right: 20px; border: 3px solid #ddd; border-radius: 8px; padding: 5px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);"> <!-- Increased size to 200px -->
+                        <img src="../<?php echo htmlspecialchars($profile['profile_image']); ?>" alt="User Profile" style="width: 100%; height: auto; border-radius: 8px;"> <!-- Responsive image -->
+                    </div>
+                    <div class="user-info">
+                        <div class="icon" style="display: flex;">
+                            <h4 class="event-title" style="margin: 0;"><?php echo htmlspecialchars($profile['name']); ?></h4>
+                        </div>
+                        <?php
+                        $dob = new DateTime($profile['dob']);
+                        $now = new DateTime();
+                        $age = $now->diff($dob)->y;
+                        ?>
+                        <br>
+                        <p class="user-age">Age: <?php echo $age; ?></p>
+                        <p class="user-email">Email: <?php echo htmlspecialchars($profile['email']); ?></p>
+                        <br>
+                        <p class="user-intro"><?php echo nl2br(htmlspecialchars($profile['self_introduction'])); ?></p>
+                        <a href="view_profile.php?user_id=<?php echo $event['user_id']; ?>" class="btn btn-primary mt-3">View Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
     <script>
         document.getElementById('goBack').addEventListener('click', function() {
