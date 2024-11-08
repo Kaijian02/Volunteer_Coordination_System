@@ -1,0 +1,9 @@
+{
+    "require": {
+        "google/apiclient": "2.0",
+        "phpmailer/phpmailer": "^6.9",
+        "telesign/telesign": "^2.2",
+        "twilio/sdk": "^8.3",
+        "setasign/fpdf": "^1.8"
+    }
+}
